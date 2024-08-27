@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Box with Binary Search</title>
+    <style>
+        /* Style for the search results */
+        #searchResults {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            width: calc(100% - 2px); /* Adjust width to match search box */
+            max-height: 150px; /* Set max height for scroll */
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            z-index: 1;
+        }
+
+        #searchResults a {
+            display: block;
+            padding: 5px 10px;
+            text-decoration: none;
+            color: black;
+        }
+
+        #searchResults a:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Search Box with Binary Search</h2>
+
+<!-- Search box -->
+<input type="text" id="searchInput" oninput="filterSearch()" placeholder="Search for items..">
+
+<!-- Search results container -->
+<div id="searchResults">
+    <!-- Search results will be added dynamically here -->
+</div>
+
+<script>
+    var list = []; // Global variable to hold the list items
+    var sortedList = []; // Global variable to hold the sorted list items
+
+    // Load list from external JavaScript file
+    function loadList() {
+        var script = document.createElement('script');
+        script.onload = function () {
+            list = myList;
+            sortedList = list.slice().sort(); // Create a sorted copy of the list
+        };
+        script.src = 'list.js';
+        document.head.appendChild(script);
+    }
+
+    // Perform binary search-like operation to find matching items
+    function binarySearch(query) {
+        var start = 0;
+        var end = sortedList.length - 1;
+        var results = [];
+
+        // Binary search for the range of matching items
+        while (start <= end) {
+            var mid = Math.floor((start + end) / 2);
+            var item = sortedList[mid];
+
+            if (item.startsWith(query)) {
+                results.push(item); // Found a matching item
+                start = mid + 1; // Continue searching for more matches on the right side
+            } else if (item < query) {
+                start = mid + 1;
+            } else {
+                end = mid - 1;
+            }
+        }
+
+        return results;
+    }
+
+    // Filter search results based on input
+    function filterSearch() {
+        var input, query, searchResults, resultsContainer, resultsHTML;
+        input = document.getElementById("searchInput");
+        query = input.value.toUpperCase();
+        searchResults = binarySearch(query);
+
+        // Display search results
+        resultsContainer = document.getElementById("searchResults");
+        resultsHTML = '';
+        for (var j = 0; j < searchResults.length; j++) {
+            resultsHTML += '<a href="#" onclick="selectSearchResult(\'' + searchResults[j] + '\')">' + searchResults[j] + '</a>';
+        }
+        resultsContainer.innerHTML = resultsHTML;
+        resultsContainer.style.display = searchResults.length > 0 ? 'block' : 'none';
+    }
+
+    // Select search result and fill the search box
+    function selectSearchResult(result) {
+        document.getElementById("searchInput").value = result;
+        document.getElementById("searchResults").style.display = 'none';
+    }
+
+    // Event listener to load list
+    document.addEventListener("DOMContentLoaded", function () {
+        loadList();
+    });
+
+    // Event listener to hide search results on click outside
+    document.addEventListener("click", function (e) {
+        if (!document.getElementById("searchResults").contains(e.target) && e.target.id !== "searchInput") {
+            document.getElementById("searchResults").style.display = 'none';
+        }
+    });
+</script>
+
+</body>
+</html>

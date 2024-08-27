@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropdown Search</title>
+    <style>
+        /* Style for the dropdown */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            max-height: 150px; /* Set max height for scroll */
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            z-index: 1;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Dropdown Search</h2>
+
+<!-- Search box -->
+<input type="text" id="searchInput" oninput="filterDropdown()" placeholder="Search for items..">
+
+<!-- Dropdown container -->
+<div class="dropdown" id="dropdownContainer">
+    <div id="dropdown" class="dropdown-content">
+        <!-- Dropdown options will be added dynamically here -->
+    </div>
+</div>
+
+<script>
+    var list = []; // Global variable to hold the list items
+
+    // Load list from external JavaScript file
+    function loadList() {
+        var script = document.createElement('script');
+        script.onload = function () {
+            list = myList;
+            populateDropdown();
+        };
+        script.src = 'list.js';
+        document.head.appendChild(script);
+    }
+
+    // Populate dropdown with list items
+    function populateDropdown() {
+        var dropdown = document.getElementById("dropdown");
+        dropdown.innerHTML = "";
+        for (var i = 0; i < list.length; i++) {
+            var option = document.createElement("a");
+            option.innerText = list[i];
+            option.onclick = function() {
+                document.getElementById("searchInput").value = this.innerText;
+                document.getElementById("dropdown").style.display = "none";
+            };
+            dropdown.appendChild(option);
+        }
+    }
+
+    // Filter dropdown options based on search input
+    function filterDropdown() {
+        var input, filter, dropdown, options, option, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        dropdown = document.getElementById("dropdown");
+        options = dropdown.getElementsByTagName("a");
+
+        for (var i = 0; i < options.length; i++) {
+            option = options[i];
+            txtValue = option.textContent || option.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                option.style.display = "";
+            } else {
+                option.style.display = "none";
+            }
+        }
+        dropdown.style.display = "block"; // Show the dropdown after filtering
+    }
+
+    // Event listener to load list and handle dropdown visibility
+    document.addEventListener("DOMContentLoaded", function () {
+        loadList();
+        document.addEventListener("click", function (e) {
+            if (!document.getElementById("dropdownContainer").contains(e.target)) {
+                document.getElementById("dropdown").style.display = "none";
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
